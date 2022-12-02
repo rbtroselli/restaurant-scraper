@@ -10,6 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
+# month translation text-number
 months_dict = {
     'gennaio':'01',
     'febbraio':'02',
@@ -25,28 +26,21 @@ months_dict = {
     'dicembre':'12'
 }
 
-
-
-
+# paths
 path = os.getcwd()
-print(path)
-
 user_data_path = path+'/user_data'
-print(user_data_path)
-
 executable_path = path+'/chromedriver'
-print(executable_path)
 
-
-
-
+# chrome options
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument(f'user-data-dir={user_data_path}')
 chrome_options.add_argument(f'--profile-directory=Default')
 
-
-
+# search url
 url = 'https://www.tripadvisor.it/Restaurants-g187849-Milan_Lombardy.html'
+
+restaurants_goal_number = 1200
+
 
 # istantiate driver
 driver = webdriver.Chrome(
@@ -65,7 +59,6 @@ driver = webdriver.Chrome(
 driver.get(url)
 time.sleep(1)
 
-restaurants_goal_number = 1200
 
 # list containing all of the restaurants urls
 restaurant_url_list = []
