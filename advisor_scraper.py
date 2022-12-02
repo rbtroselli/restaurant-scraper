@@ -1,16 +1,10 @@
 from selenium import webdriver
 import time
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
-import sqlite3
-import os
 import random
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-
-
 
 
 class AdvisorScraper():
@@ -78,7 +72,7 @@ class AdvisorScraper():
                 p.write(key + '|' + value + '\n')
         return
 
-    def perimeter_definition(self, search_url, min_total=1200, min_per_rank=30, output_file='perimeter.txt'):
+    def perimeter_definition(self, search_url, min_total=1000, min_per_rank=25, output_file='perimeter.txt'):
         """
         Cycle until perimeter reaches limit AND 
         there is a minimum amount per each rank
@@ -102,15 +96,19 @@ class AdvisorScraper():
                         # get restaurant reviews number
                         restaurant_reviews_number = box.find(class_='IiChw').text.replace('.','').split(' ')[0]
                         # if less than n reviews, discard
-                        if int(restaurant_reviews_number)<60:
+                        if int(restaurant_reviews_number) < 25:
                             continue
                         # get restaurant url, attaching site url
                         restaurant_url = 'https://www.tripadvisor.it' + box.find(href=True)['href']
                         restaurant_rank = box.find(class_='UctUV d H0').attrs['aria-label'].split()[1].replace(',','.')
-                        count_per_rank[str(int(float(restaurant_rank)))]+=1
+
+                        # hard cap per each rank
+                        if count_per_rank[str(int(float(restaurant_rank)))] >= 500:
+                            continue
 
                         # dictionary doesn't support duplicates!
                         perimeter_dictionary[restaurant_url] = restaurant_rank
+                        count_per_rank[str(int(float(restaurant_rank)))]+=1
 
                         print(restaurant_url)
                         print(restaurant_reviews_number)
@@ -199,7 +197,7 @@ class AdvisorScraper():
                 time.sleep(random.uniform(0.5,1.5))
                 
                 j = 0
-                for j in (0,10,20,30,40,50):
+                for j in (0,10,20):
 
                     try:
                         restaurant_reviews_url = restaurant_url.replace('Reviews-',f'Reviews-or{j}-')
@@ -293,3 +291,4 @@ class AdvisorScraper():
 # rimuovere funzioni per cui non serve lo status dall'oggetto, tipo quelle che lavorano la stringa o next_page
 # capire dove mettere i driver.close()
 # sistemare i print
+# parametrizzare hard cap e simili!!! Tipo i minimi
