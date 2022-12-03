@@ -79,9 +79,20 @@ class AdvisorScraper():
         """
         url = search_url
         perimeter_dictionary = {}
-        count_per_rank = {'1':0,'2':0,'3':0,'4':0,'5':0}
+        count_per_rank = {
+            '1.0':0,
+            '1.5':0,
+            '2.0':0,
+            '2.5':0,
+            '3.0':0,
+            '3.5':0,
+            '4.0':0,
+            '4.5':0,
+            '5.0':0
+        }
         
-        while (len(perimeter_dictionary) < min_total) or (True in [i<min_per_rank for i in count_per_rank.values()]):
+        while (len(perimeter_dictionary) < min_total) \
+            or (True in [i<min_per_rank for i in count_per_rank.values()]):
             
             try:
                 self.load_page(url)
@@ -103,39 +114,44 @@ class AdvisorScraper():
                         restaurant_rank = box.find(class_='UctUV d H0').attrs['aria-label'].split()[1].replace(',','.')
 
                         # hard cap per each rank
-                        if count_per_rank[str(int(float(restaurant_rank)))] >= 500:
+                        if count_per_rank[restaurant_rank] >= 250:
                             continue
 
                         # dictionary doesn't support duplicates!
                         perimeter_dictionary[restaurant_url] = restaurant_rank
-                        count_per_rank[str(int(float(restaurant_rank)))]+=1
+                        count_per_rank[restaurant_rank]+=1
 
                         print(restaurant_url)
                         print(restaurant_reviews_number)
                         print(restaurant_rank)
-                    except:
+                    except Exception as e:
+                        print(e)
                         print('Box error, skipping...')
                         continue
                 
                 print(count_per_rank)
 
-                # get next page url
-                next_page = soup.find(class_='nav next rndBtn ui_button primary taLnk')['href']
-                # break if there is no next page
-                if next_page==None:
-                    break  
+                try:
+                    # get next page url
+                    next_page = soup.find(class_='nav next rndBtn ui_button primary taLnk')['href']
+                except TypeError:
+                    print('No new button, pages finished.')
+                    break
+
                 # assign next page url and wait
                 url = 'https://www.tripadvisor.it' + next_page
-                time.sleep(random.uniform(1,3))
+                time.sleep(random.uniform(0.5,1.5))
             except:
-                # get next page url
-                next_page = soup.find(class_='nav next rndBtn ui_button primary taLnk')['href']
-                # break if there is no next page
-                if next_page==None:
-                    break  
+                try:
+                    # get next page url
+                    next_page = soup.find(class_='nav next rndBtn ui_button primary taLnk')['href']
+                except TypeError:
+                    print('No new button, pages finished.')
+                    break
+
                 # assign next page url and wait
                 url = 'https://www.tripadvisor.it' + next_page
-                time.sleep(random.uniform(1,3))
+                time.sleep(random.uniform(0.5,1.5))
                 print('Page error, skipping...')
                 continue
             
@@ -209,7 +225,7 @@ class AdvisorScraper():
                         # this expands all the reviews' texts
                         try:
                             WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "ulBlueLinks"))).click()
-                            time.sleep(0.5)
+                            time.sleep(1)
                         except:
                             print('No "Più" button')
 
@@ -292,3 +308,7 @@ class AdvisorScraper():
 # capire dove mettere i driver.close()
 # sistemare i print
 # parametrizzare hard cap e simili!!! Tipo i minimi
+# better log per errori
+# check Più|
+# check, se duplicati nel dizionario non incrementare relativo count del rank
+# intercettare il giusto errore in non più button
