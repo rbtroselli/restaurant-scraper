@@ -24,6 +24,6 @@ url = 'https://www.tripadvisor.it/Restaurants-g187849-Milan_Lombardy.html'
 
 scraper = AdvisorScraper(user_data_path, executable_path)
 
-perimeter_dictionary = scraper.perimeter_definition(url, min_total=50, min_per_rank=0)
-scraper.scrape_entity_review(list(perimeter_dictionary.keys()))
+perimeter = scraper.perimeter_definition(url, min_total=50, min_per_rank=0)
+scraper.scrape_entity_review(perimeter)
 

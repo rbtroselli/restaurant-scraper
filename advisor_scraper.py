@@ -200,7 +200,7 @@ class AdvisorScraper():
         
         # write perimeter to file
         self._perimeter_to_file(perimeter_dictionary, output_file)
-        return perimeter_dictionary
+        return list(perimeter_dictionary.keys())
 
 
     def scrape_entity_review(self, restaurant_url_list):
@@ -209,7 +209,7 @@ class AdvisorScraper():
         """
         # write header on output files, and open in append mode
         with open('restaurant.csv','w') as restaurant_file:
-            restaurant_file.write('id|name|rank|address|phone|avg_price|url\n')
+            restaurant_file.write('restaurant_id|name|rank|address|phone|avg_price|url\n')
         with open('review.csv','w') as review_file:
             review_file.write('restaurant_id|user|date|vote|title|text|url\n')
         restaurant_file = open('restaurant.csv','a')
