@@ -1,8 +1,8 @@
-from selenium import webdriver
 import time
-from selenium.webdriver.common.by import By
-from bs4 import BeautifulSoup
 import random
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -24,10 +24,11 @@ class AdvisorScraper():
         'dicembre':'12'
     }
 
-    def __init__(self, user_data_path, executable_path, driver=None):
+    def __init__(self, user_data_path, executable_path, driver=None, perimeter_list=None):
         self.user_data_path = user_data_path
         self.executable_path = executable_path
         self._instantiate_driver()
+        self.perimeter_list = perimeter_list
         return
 
 
@@ -200,13 +201,15 @@ class AdvisorScraper():
         
         # write perimeter to file
         self._perimeter_to_file(perimeter_dictionary, output_file)
+        self.perimeter_list = list(perimeter_dictionary.keys())
         return list(perimeter_dictionary.keys())
 
 
-    def scrape_entity_review(self, restaurant_url_list):
+    def scrape_entity_review(self, restaurant_url_list=None):
         """
         Scrape restaurants and their reviews
         """
+        if restaurant_url_list == None: restaurant_url_list = self.perimeter_list
         # write header on output files, and open in append mode
         with open('restaurant.csv','w') as restaurant_file:
             restaurant_file.write('restaurant_id|name|rank|address|phone|avg_price|url\n')
