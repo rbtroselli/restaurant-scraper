@@ -10,18 +10,18 @@ from selenium.webdriver.support import expected_conditions as EC
 class AdvisorScraper():
     # month translation text-number
     months_dict = {
-        'gennaio':'01',
-        'febbraio':'02',
-        'marzo':'03',
-        'aprile':'04',
-        'maggio':'05',
-        'giugno':'06',
-        'luglio':'07',
-        'agosto':'08',
-        'settembre':'09',
-        'ottobre':'10',
-        'novembre':'11',
-        'dicembre':'12'
+        'gennaio': '01',
+        'febbraio': '02',
+        'marzo': '03',
+        'aprile': '04',
+        'maggio': '05',
+        'giugno': '06',
+        'luglio': '07',
+        'agosto': '08',
+        'settembre': '09',
+        'ottobre': '10',
+        'novembre': '11',
+        'dicembre': '12'
     }
 
     def __init__(self, user_data_path, executable_path, driver=None, perimeter_list=None):
@@ -30,7 +30,6 @@ class AdvisorScraper():
         self._instantiate_driver()
         self.perimeter_list = perimeter_list
         return
-
 
     def _instantiate_driver(self):
         """
@@ -42,11 +41,10 @@ class AdvisorScraper():
         chrome_options.add_argument(f'--profile-directory=Default')
         # driver istance
         self.driver = webdriver.Chrome(
-            executable_path = self.executable_path,
-            options = chrome_options
+            executable_path=self.executable_path,
+            options=chrome_options
         )
         return
-
 
     def _load_page_and_wait(self, url):
         """
@@ -56,7 +54,6 @@ class AdvisorScraper():
         time.sleep(random.uniform(1.5,2.5))
         return
     
-
     def _get_soup(self, url):
         """
         Get soup from url
@@ -64,7 +61,6 @@ class AdvisorScraper():
         self._load_page_and_wait(url)
         soup = BeautifulSoup(self.driver.page_source, 'html.parser')
         return soup
-
 
     def _load_expand_and_get_soup(self, url):
         """
@@ -80,7 +76,6 @@ class AdvisorScraper():
         soup = BeautifulSoup(self.driver.page_source, 'html.parser')
         return soup
     
-
     def _perimeter_to_file(self, perimeter_dictionary, output_file):
         """
         Write url from perimeter to file
@@ -90,7 +85,6 @@ class AdvisorScraper():
                 p.write(key + '|' + value + '\n')
         return
     
-
     def _scrape_restaurant(self, soup, restaurant_url, restaurant_id):
         """
         Get restaurant info from its soup, return a list with all of the info
@@ -107,7 +101,6 @@ class AdvisorScraper():
         field_list = [restaurant_id, restaurant_name, restaurant_rank, 
             restaurant_address, restaurant_phone, restaurant_avg_price, restaurant_url]
         return field_list
-
 
     def _scrape_review(self, review_soup, restaurant_id):
         """
@@ -130,7 +123,6 @@ class AdvisorScraper():
             review_vote, review_title, review_text, review_url]
         return field_list
     
-
     def _scrape_restaurant_box(self, box_soup):
         """
         Scrape restaurant box in search page, get and return info
@@ -140,7 +132,6 @@ class AdvisorScraper():
         restaurant_rank = box_soup.find(class_='UctUV d H0').attrs['aria-label'].split()[1].replace(',','.')
         print(restaurant_reviews_number, restaurant_url, restaurant_rank)
         return restaurant_reviews_number, restaurant_url, restaurant_rank
-
 
     def _get_next_page(self, soup):
         """
@@ -171,6 +162,8 @@ class AdvisorScraper():
                 boxes = soup.find_all(class_="YHnoF Gi o")
                 for box_soup in boxes:
                     try:
+                        if box_soup.find(class_='biGQs _P osNWb') is not None:
+                            continue
                         restaurant_reviews_number, restaurant_url, restaurant_rank = self._scrape_restaurant_box(box_soup)
                         # if less than n reviews discard, if cap reached discard
                         if int(restaurant_reviews_number) < 25: 
@@ -187,13 +180,13 @@ class AdvisorScraper():
                 print(count_per_rank)
                 # get next page, break while if last page
                 search_url = self._get_next_page(soup)
-                if search_url == False: 
+                if search_url is False:
                     break
 
             # if error in the page, get to next page, break while if last page
             except:
                 search_url = self._get_next_page(soup)
-                if search_url == False: 
+                if search_url is False:
                     break
                 # if url is valid, skip page and go on
                 print('Page error, skipping...')
@@ -209,7 +202,8 @@ class AdvisorScraper():
         """
         Scrape restaurants and their reviews
         """
-        if restaurant_url_list == None: restaurant_url_list = self.perimeter_list
+        if restaurant_url_list == None: 
+            restaurant_url_list = self.perimeter_list
         # write header on output files, and open in append mode
         with open('restaurant.csv','w') as restaurant_file:
             restaurant_file.write('restaurant_id|name|rank|address|phone|avg_price|url\n')
