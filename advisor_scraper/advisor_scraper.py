@@ -150,8 +150,7 @@ class AdvisorScraper():
         Cycle until perimeter reaches limit AND there is a minimum amount per each rank
         """
         perimeter_dictionary = {}
-        count_per_rank = {'1.0':0, '1.5':0, '2.0':0, '2.5':0,
-            '3.0':0, '3.5':0, '4.0':0, '4.5':0, '5.0':0}
+        count_per_rank = {'1.0':0, '1.5':0, '2.0':0, '2.5':0, '3.0':0, '3.5':0, '4.0':0, '4.5':0, '5.0':0}
         
         while (len(perimeter_dictionary) < min_total) or (True in [i<min_per_rank for i in count_per_rank.values()]):
             
@@ -166,7 +165,7 @@ class AdvisorScraper():
                             continue
                         restaurant_reviews_number, restaurant_url, restaurant_rank = self._scrape_restaurant_box(box_soup)
                         # if less than n reviews discard, if cap reached discard
-                        if int(restaurant_reviews_number) < 25: 
+                        if int(restaurant_reviews_number) < 25:
                             continue
                         if count_per_rank[restaurant_rank] >= 250:
                             continue
@@ -184,12 +183,12 @@ class AdvisorScraper():
                     break
 
             # if error in the page, get to next page, break while if last page
-            except:
+            except Exception as e:
                 search_url = self._get_next_page(soup)
                 if search_url is False:
                     break
                 # if url is valid, skip page and go on
-                print('Page error, skipping...')
+                print(e, 'Page error, skipping...')
                 continue
         
         # write perimeter to file
@@ -202,7 +201,7 @@ class AdvisorScraper():
         """
         Scrape restaurants and their reviews
         """
-        if restaurant_url_list == None: 
+        if restaurant_url_list is None:
             restaurant_url_list = self.perimeter_list
         # write header on output files, and open in append mode
         with open('restaurant.csv','w') as restaurant_file:
@@ -213,7 +212,7 @@ class AdvisorScraper():
         review_file = open('review.csv','a')
 
         for restaurant_url in restaurant_url_list:
-            try: 
+            try:
                 soup = self._get_soup(restaurant_url)
                 restaurant_id = restaurant_url.split('-')[2]
                 fields = self._scrape_restaurant(soup, restaurant_url, restaurant_id)
@@ -257,3 +256,5 @@ class AdvisorScraper():
 # parametrizzare hard cap e simili!!! Tipo i minimi
 # check Più|
 # check, se duplicati nel dizionario non incrementare relativo count del rank
+# aggiungere tipologia ristorante
+# aggiungere db al posto del file?!
