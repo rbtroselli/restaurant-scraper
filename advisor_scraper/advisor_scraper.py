@@ -161,6 +161,7 @@ class AdvisorScraper():
                 boxes = soup.find_all(class_="YHnoF Gi o")
                 for box_soup in boxes:
                     try:
+                        # skip sponsored
                         if box_soup.find(class_='biGQs _P osNWb') is not None:
                             continue
                         restaurant_reviews_number, restaurant_url, restaurant_rank = self._scrape_restaurant_box(box_soup)
@@ -217,6 +218,7 @@ class AdvisorScraper():
                 restaurant_id = restaurant_url.split('-')[2]
                 fields = self._scrape_restaurant(soup, restaurant_url, restaurant_id)
                 restaurant_file.write('|'.join([s for s in fields])+'\n')
+                restaurant_file.flush()
                 
                 # iterate reviews pages, 10 review per each
                 for j in (0,10,20):
@@ -237,7 +239,6 @@ class AdvisorScraper():
                         
                         # write review lines, flush file buffers and print review iteration
                         review_file.write(review_lines)
-                        restaurant_file.flush()
                         review_file.flush()
                         print(j)
 
@@ -252,9 +253,7 @@ class AdvisorScraper():
         review_file.close()
         return
 
-# capire dove mettere driver.close()
-# parametrizzare hard cap e simili!!! Tipo i minimi
-# check Più|
-# check, se duplicati nel dizionario non incrementare relativo count del rank
-# aggiungere tipologia ristorante
-# aggiungere db al posto del file?!
+    def close_driver(self):
+        self.driver.close()
+        return
+
